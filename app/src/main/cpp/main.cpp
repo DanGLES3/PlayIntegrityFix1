@@ -75,13 +75,14 @@ public:
     }
 
     void preAppSpecialize(zygisk::AppSpecializeArgs *args) override {
-        bool isGms = false, isGmsUnstable = false;
+        bool isGms = false, isGmsUnstable = false, isFinsky = false;
 
         auto process = env->GetStringUTFChars(args->nice_name, nullptr);
 
         if (process) {
             isGms = strncmp(process, "com.google.android.gms", 22) == 0;
             isGmsUnstable = strcmp(process, "com.google.android.gms.unstable") == 0;
+            isFinsky = strcmp(process, "com.android.vending") == 0;
         }
 
         env->ReleaseStringUTFChars(args->nice_name, process);
@@ -213,6 +214,7 @@ private:
 
         LOGD("call init");
         auto entryInit = env->GetStaticMethodID(entryClass, "init", "(Ljava/lang/String;)V");
+        if(isFinsky) entryInit = env->GetStaticMethodID(entryClass, "init_Finsky", "(Ljava/lang/String;)V");
         auto javaStr = env->NewStringUTF(json.dump().c_str());
         env->CallStaticVoidMethod(entryClass, entryInit, javaStr);
     }

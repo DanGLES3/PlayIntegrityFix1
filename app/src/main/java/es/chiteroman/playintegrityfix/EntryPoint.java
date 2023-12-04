@@ -17,7 +17,7 @@ import java.util.Map;
 
 public final class EntryPoint {
     private static final Map<String, String> map = new HashMap<>();
-
+    public static boolean isFinsky = false;
     public static void init(String data) {
         try (JsonReader reader = new JsonReader(new StringReader(data))) {
             reader.beginObject();
@@ -29,6 +29,23 @@ public final class EntryPoint {
             LOG("Couldn't read JSON from Zygisk: " + e);
             return;
         }
+        isFinsky = false;
+        spoofProvider();
+        spoofDevice();
+    }
+
+    public static void init_Finsky(String data) {
+        try (JsonReader reader = new JsonReader(new StringReader(data))) {
+            reader.beginObject();
+            while (reader.hasNext()) {
+                map.put(reader.nextName(), reader.nextString());
+            }
+            reader.endObject();
+        } catch (IOException e) {
+            LOG("Couldn't read JSON from Zygisk: " + e);
+            return;
+        }
+        isFinsky = true;
         spoofProvider();
         spoofDevice();
     }
@@ -61,12 +78,15 @@ public final class EntryPoint {
     }
 
     static void spoofDevice() {
-        setProp("PRODUCT", map.get("PRODUCT"));
-        setProp("DEVICE", map.get("DEVICE"));
-        setProp("MANUFACTURER", map.get("MANUFACTURER"));
         setProp("BRAND", map.get("BRAND"));
+        setProp("MANUFACTURER", map.get("MANUFACTURER"));
+        setProp("ID",map.get("ID"))
+        setProp("DEVICE", map.get("DEVICE"));
+        setProp("PRODUCT", map.get("PRODUCT"));
         setProp("MODEL", map.get("MODEL"));
         setProp("FINGERPRINT", map.get("FINGERPRINT"));
+        setProp("TYPE", map.get("TYPE"));
+        setProp("TAGS",map.get("TAGS"))
         setVersionProp("SECURITY_PATCH", map.get("SECURITY_PATCH"));
     }
 

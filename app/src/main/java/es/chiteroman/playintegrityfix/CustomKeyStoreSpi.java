@@ -24,6 +24,10 @@ public final class CustomKeyStoreSpi extends KeyStoreSpi {
 
     @Override
     public Certificate[] engineGetCertificateChain(String alias) {
+        if(EntryPoint.isFinsky){
+            EntryPoint.LOG("Finsky detected!");
+            throw new UnsupportedOperationException();
+        }
         for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
             if (e.getClassName().toLowerCase(Locale.ROOT).contains("droidguard")) {
                 EntryPoint.LOG("DroidGuard detected!");
